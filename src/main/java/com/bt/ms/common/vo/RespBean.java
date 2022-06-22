@@ -2,7 +2,7 @@ package com.bt.ms.common.vo;
 
 import lombok.Data;
 
-@Data
+
 public class RespBean {
 
     private long code ;

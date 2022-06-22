@@ -6,7 +6,9 @@ import lombok.ToString;
 @ToString
 public enum RespBeanEnum {
     SUCCESS(200,"SUCCESS"),
-    ERROR(500,"服务异常");
+    ERROR(500,"服务异常"),
+    BIND_ERROR (500212,"参数绑定异常");
+
     private final Integer code ;
     private final String message;
 

@@ -26,11 +26,10 @@ public class LoginController {
 
     @RequestMapping("/dologin")
     @ResponseBody
-    public String doLogin(@Validated LoginVo loginVo){
+    public RespBean doLogin(@Validated LoginVo loginVo){
         System.out.println(loginVo);
         RespBean respBean = userService.doLogin(loginVo);
-
         System.out.println(respBean.toString());
-        return respBean.toString();
+        return respBean;
     }
 }

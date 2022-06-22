@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>登录页面</title>
     <script type="text/javascript" th:src="@{/js/jquery-3.6.0.min.js}"></script>
     <script type="text/javascript" th:src="@{/bootstrap/bootstrap.min.js}"></script>
-    <link  rel="stylesheet"        th:src="@{/bootstrap/bootstrap.min.css}"></link>
+    <link  rel="stylesheet"        th:href="@{/bootstrap/bootstrap.min.css}"></link>
     <script type="text/javascript" th:src="@{/validate/jquery.validate.min.js}"></script>
     <script type="text/javascript" th:src="@{/validate/messages_zh.min.js}"></script>
     <script type="text/javascript" th:src="@{/layer/layui.js}"></script>
-    <link  rel="stylesheet"        th:src="@{/layer/css/layui.css}"></link>
+    <link  rel="stylesheet"        th:href="@{/layer/css/layui.css}"></link>
     <script type="text/javascript" th:src="@{/md5.js}"></script>
     <script type="text/javascript" th:src="@{/common.js}"></script>
 </head>
@@ -56,9 +56,17 @@
 </body>
 <script>
     function login(){
+
+        var isChecked = $("#loginForm").valid() ;
+        alert(isChecked)
+        if(!isChecked){
+            return;
+        }
+
         g_showLoading() ;
         var inputpass = $("#password").val();
         var mobile = $("#mobile").val();
+
         $.ajax({
             url:"dologin",
             type:"post",
