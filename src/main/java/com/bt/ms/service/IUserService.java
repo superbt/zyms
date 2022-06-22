@@ -1,7 +1,9 @@
 package com.bt.ms.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.bt.ms.common.vo.RespBean;
 import com.bt.ms.pojo.User;
+import com.bt.ms.vo.LoginVo;
 
 /**
  * <p>
@@ -13,4 +15,5 @@ import com.bt.ms.pojo.User;
  */
 public interface IUserService extends IService<User> {
 
+    public RespBean doLogin(LoginVo loginVo);
 }

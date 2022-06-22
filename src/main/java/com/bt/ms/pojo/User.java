@@ -16,6 +16,8 @@ import java.util.Date;
 @TableName("t_user")
 public class User implements Serializable {
 
+    private String id ;
+
     private static final long serialVersionUID = 1L;
 
     private String nickname;
@@ -95,6 +97,14 @@ public class User implements Serializable {
 
     public void setLoginCount(Integer loginCount) {
         this.loginCount = loginCount;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override
