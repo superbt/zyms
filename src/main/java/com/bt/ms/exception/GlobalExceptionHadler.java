@@ -11,7 +11,9 @@ public class GlobalExceptionHadler {
 
     @ExceptionHandler(Exception.class)
     public RespBean exceptionHalder(Exception e){
+
         System.out.println("进入全局异常处理。。。。。");
+        e.printStackTrace();
         if(e instanceof  GlobalException){
             GlobalException ex = (GlobalException) e ;
             return  RespBean.error(ex.getRespBeanEnum());
