@@ -53,6 +53,6 @@ public class GoodsController {
 
     @RequestMapping("/toDetail")
     public String toDetail(Model model ,User user){
-      return "" ;
+        return "" ;
     }
 }

@@ -47,7 +47,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }else if(ValidatorUtil.isMobile(mobile)){
             return  RespBean.error("手机号格式有误");
         }
-       User user =  userMapper.selectById(mobile);
+        User user =  userMapper.selectById(mobile);
         if(user==null){
             return  RespBean.error("用户不存在");
         }
@@ -74,8 +74,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
             return  RespBean.error("用户密码错误");
         }
         String ticket = UUIDUtil.uuid();
-       // request.getSession().setAttribute(ticket,user);
-         redisTemplate.opsForValue().set("user:"+ticket,user, Duration.ofMinutes(30));
+        // request.getSession().setAttribute(ticket,user);
+        redisTemplate.opsForValue().set("user:"+ticket,user, Duration.ofMinutes(30));
         //redisTemplate.opsForValue().set("user:"+ticket,user);
         CookieUtil.setCookie(request,response,"userTicket",ticket);
         return RespBean.success();
@@ -90,7 +90,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
         User user = (User) redisTemplate.opsForValue().get("user:"+userTicket);
         if(user!=null){
-          CookieUtil.setCookie(request,response,"userTicket",userTicket);
+            CookieUtil.setCookie(request,response,"userTicket",userTicket);
         }
         return user;
     }

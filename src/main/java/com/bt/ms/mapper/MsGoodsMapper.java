@@ -1,6 +1,6 @@
 package com.bt.ms.mapper;
 
-import com.bt.ms.pojo.User;
+import com.bt.ms.pojo.MsGoods;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
 /**
@@ -9,8 +9,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
  * </p>
  *
  * @author bt
- * @since 2022-06-22
+ * @since 2022-06-23
  */
-public interface UserMapper extends BaseMapper<User> {
+public interface MsGoodsMapper extends BaseMapper<MsGoods> {
 
 }
