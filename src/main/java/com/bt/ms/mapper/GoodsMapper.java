@@ -2,7 +2,7 @@ package com.bt.ms.mapper;
 
 import com.bt.ms.pojo.Goods;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.bt.ms.vo.GoodsVo;
+import com.bt.ms.vo.o;
 
 import java.util.List;
 
@@ -15,5 +15,7 @@ import java.util.List;
  * @since 2022-06-23
  */
 public interface GoodsMapper extends BaseMapper<Goods> {
-    public List<GoodsVo> findGoodsVo();
+    public List<o> findGoodsVo();
+
+    GoodsVo findGoodsVoByGoodsId(Long goodsId);
 }

@@ -1,5 +1,6 @@
 package com.bt.ms.controller;
 
+import com.bt.ms.pojo.Goods;
 import com.bt.ms.pojo.User;
 import com.bt.ms.service.IGoodsService;
 import com.bt.ms.service.IUserService;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,8 +40,11 @@ public class GoodsController {
         return "goodsList";
     }
 
-    @RequestMapping("/toDetail")
-    public String toDetail(Model model ,User user){
-        return "" ;
+    @RequestMapping("/toDetail/{goodsId}")
+    public String toDetail(Model model , User user, @PathVariable Long goodsId){
+        model.addAttribute("user",user);
+        GoodsVo goods =  goodsService.findGoodsVoByGoodsId(goodsId);
+        model.addAttribute("goods",goods);
+        return "goodsDetail" ;
     }
 }

@@ -26,4 +26,16 @@
              ON goods.goodsid = msgoods.goods_id
     </select>
 
+
+    <select id="findGoodsVoByGoodsId" parameterType="Long" resultType="com.bt.ms.vo.GoodsVo">
+        SELECT *
+        FROM t_goods as goods
+                 LEFT JOIN
+             t_ms_goods as msgoods
+             ON goods.goodsid = msgoods.goods_id
+        WHERE goods.goodsid = #{goodsId}
+    </select>
+
+
+
 </mapper>
