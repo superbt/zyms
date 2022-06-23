@@ -1,12 +1,12 @@
 package com.bt.ms.vo;
 
-import com.sun.istack.internal.NotNull;
+
 
 public class LoginVo {
 
-    @NotNull
+
     String mobile ;
-    @NotNull
+
     String password ;
 
     public LoginVo() {

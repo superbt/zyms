@@ -1,13 +1,15 @@
 package com.bt.ms.pojo;
 
 import java.math.BigDecimal;
+
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
 import java.io.Serializable;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author bt
@@ -21,6 +23,7 @@ public class MsGoods implements Serializable {
     /**
      * 秒杀订单id
      */
+    @TableId
     private Long msGoodsId;
 
     /**
@@ -90,6 +93,8 @@ public class MsGoods implements Serializable {
     public void setEndTime(Date endTime) {
         this.endTime = endTime;
     }
+
+
 
     @Override
     public String toString() {

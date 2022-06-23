@@ -33,18 +33,21 @@
         <tr>
             <td>秒杀开始时间</td>
             <td th:text="${#dates.format(goods.startTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+            <input type="hidden" id="ces" name="ces" th:value="${msStatus}" />
+            <input type="hidden" id="remainSeconds" name="remainSeconds" th:value="${remainSeconds}" />
             <td id="msTip">
-                <input type="hidden" id="remainSeconds" th:value="${remainSeconds}" />
                 <span th:if="${msStatus eq 0}"> 秒杀倒计时：
                     <span id="countDown" th:text="${remainSeconds}">秒</span>
                 </span>
-                <span th:if="${msSastus eq 1}">秒杀进行中</span>
-                <span th:if="${msSastus eq 2}">秒杀已结束</span>
+                <span th:if="${msStatus eq 1}">秒杀进行中</span>
+                <span th:if="${msStatus eq 2}">秒杀已结束</span>
             </td>
+            <form name="form" method="post" action="/msbus/doMs">
             <td>
                 <input type="hidden" name="goodsId" id="goodsId" th:value="${goods.goodsid}">
-                <button class="btn btn-primary btn-block" id="buyButton" name="buyButton" onclick="countDown()">立即秒杀</button>
+                <button class="btn btn-primary btn-block"  type="submit" id="buyButton" name="buyButton" >立即秒杀</button>
             </td>
+            </form>
         </tr>
         <tr>
             <td>商品原价</td>
@@ -62,18 +65,57 @@
         countDown();
     });
 
+    function msclick(){
+      alert("我要秒杀了");
+        $.ajax({
+            url:"123",
+            type:"post",
+            data:{
+                goodsId:$("#goodsId").val()
+            },
+            success:function (data){
+                layer.closeAll();
+                if(data.code==200){
+                    layer.msg("成功");
+                }else {
+                    var msg1 = data.mssage ;
+                    var msg2 = data.obj ;
+                    layer.msg((msg1==null?'':msg1)+(msg2==null?'':msg2));
+                }
+
+            },
+            error:function () {
+                layer.closeAll();
+                layer.msg("异常")
+            }
+        })
+    }
+
+    function g_showLoading(){
+        var idx = layer.msg('处理中。。。。',
+            {icon:16 ,shade:[0.5,'#f5f5f5'],scrollbar:false,offset:'0px',
+                time:100000
+            }
+        );
+        return idx ;
+    }
+
+
     function  countDown(){
         var remainSeconds = $("#remainSeconds").val();
         var timeout ;
-        if(remainSeconds>0){
+        if(remainSeconds >0 ){
             $("#buyButton").attr("disabled",true);
-            timeout = setInterval($("#countDown").text(remainSeconds-1));
-            $("#remainSeconds").val(remainSeconds-1);
-            countDown();
-        }else if(remainSeconds ==0){
+
+            timeout = setTimeout(function () {
+                $("#countDown").text(remainSeconds-1);
+                $("#remainSeconds").val(remainSeconds-1);
+                countDown();
+            },1000);
+        }else if(remainSeconds == 0 ){
             $("#buyButton").attr("disabled",false);
             if(timeout){
-                clearTimeout(timeout)
+                clearTimeout(timeout);
             }
             $("#msTip").html("秒杀进行中");
         }else{

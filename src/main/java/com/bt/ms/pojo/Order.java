@@ -1,13 +1,15 @@
 package com.bt.ms.pojo;
 
 import java.math.BigDecimal;
+
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.util.Date;
 import java.io.Serializable;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author bt
@@ -21,6 +23,7 @@ public class Order implements Serializable {
     /**
      * 订单id
      */
+    @TableId
     private Long orderId;
 
     /**

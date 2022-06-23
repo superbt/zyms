@@ -1,11 +1,12 @@
 package com.bt.ms.pojo;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 
 /**
  * <p>
- * 
+ *
  * </p>
  *
  * @author bt
@@ -19,6 +20,7 @@ public class MsOrder implements Serializable {
     /**
      * 秒杀订单id
      */
+    @TableId
     private Long msOrderId;
 
     /**

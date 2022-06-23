@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>秒杀订单详情</title>
+    <script type="text/javascript" th:src="@{/js/jquery-3.6.0.min.js}"></script>
+    <script type="text/javascript" th:src="@{/bootstrap/bootstrap.min.js}"></script>
+    <link   rel="stylesheet"        th:href="@{/bootstrap/bootstrap.min.css}"></link>
+    <script type="text/javascript" th:src="@{/validate/jquery.validate.min.js}"></script>
+    <script type="text/javascript" th:src="@{/validate/messages_zh.min.js}"></script>
+    <script type="text/javascript" th:src="@{/layer/layui.js}"></script>
+    <link  rel="stylesheet"        th:href="@{/layer/css/layui.css}"></link>
+    <script type="text/javascript" th:src="@{/md5.js}"></script>
+    <script type="text/javascript" th:src="@{/common.js}"></script>
+</head>
+<body>
+<div class="layui-panel ">
+    <div class="header-panel"><p th:text="'hello:'+${user.nickname}"> 秒杀详情</div>
+    <div class="layui-body">
+        <span th:if="${user eq null}">您还没有登录，请登录后再操作<br></span>
+    </div>
+    <table class="table" id="order">
+        <tr>
+            <td>商品名称</td>
+            <td colspan="3" th:text="${goods.goodsName}"></td>
+        </tr>
+        <tr>
+            <td>商品图片</td>
+            <td colspan="2"><img th:src="@{${goods.goodsImg}}" width="100" height="100"></td>
+        </tr>
+        <tr>
+            <td>订单价格</td>
+            <td colspan="2" th:text="${order.goodsPrice}"></td>
+        </tr>
+        <tr>
+            <td>下单时间</td>
+            <td  colspan="2" th:text="${#dates.format(order.createTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+        </tr>
+        <tr>
+            <td>订单状态</td>
+            <td>
+                <span th:if="${order.orderStatus eq 0 }">未支付</span>
+                <span th:if="${order.orderStatus eq 1 }">代发货</span>
+            </td>
+        </tr>
+    </table>
+</div>
+</body>
+<script>
+
+</script>
+</html>

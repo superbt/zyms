@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -42,8 +43,26 @@ public class GoodsController {
 
     @RequestMapping("/toDetail/{goodsId}")
     public String toDetail(Model model , User user, @PathVariable Long goodsId){
+        if(user==null){
+            return "login";
+        }
         model.addAttribute("user",user);
         GoodsVo goods =  goodsService.findGoodsVoByGoodsId(goodsId);
+        Date startTime = goods.getStartTime();
+        Date endTime = goods.getEndTime();
+        Date cunrentTime = new Date();
+        int msStatus =  0 ;
+        long remainSeconds = 0 ;
+        if(cunrentTime.before(startTime)){
+            msStatus = 0 ;
+            remainSeconds =  (startTime.getTime()-cunrentTime.getTime())/1000 ;
+        }else  if(cunrentTime.after(endTime)){
+            msStatus=2;
+        }else{
+            msStatus = 1 ;
+        }
+        model.addAttribute("remainSeconds",remainSeconds);
+        model.addAttribute("msStatus",msStatus);
         model.addAttribute("goods",goods);
         return "goodsDetail" ;
     }
