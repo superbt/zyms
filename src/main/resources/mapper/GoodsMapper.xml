@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bt.ms.mapper.GoodsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.bt.ms.pojo.Goods">
+        <id column="goodsid" property="goodsid" />
+        <result column="goods_name" property="goodsName" />
+        <result column="goods_title" property="goodsTitle" />
+        <result column="goods_img" property="goodsImg" />
+        <result column="goods_detail" property="goodsDetail" />
+        <result column="goods_price" property="goodsPrice" />
+        <result column="goods_stock" property="goodsStock" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        goodsid, goods_name, goods_title, goods_img, goods_detail, goods_price, goods_stock
+    </sql>
+
+    <select id="findGoodsVo" resultType="com.bt.ms.vo.GoodsVo">
+        SELECT *
+        FROM t_goods as goods
+                 LEFT JOIN
+             t_ms_goods as msgoods
+             ON goods.goodsid = msgoods.goods_id
+    </select>
+
+</mapper>

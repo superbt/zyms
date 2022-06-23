@@ -15,8 +15,27 @@
     <script type="text/javascript" th:src="@{/common.js}"></script>
 </head>
 <body>
-Hello
-<!--<p th:text="'Hello:'+${user.nickname}'">-->
+<div class="layui-panel ">
     <p th:text="'hello:'+${user.nickname}">
+    <div class="header-panel">秒杀商品列表</div>
+    <table class="table" id="gooodsList">
+        <tr>
+            <td>商品名称</td>
+            <td>商品图片</td>
+            <td>商品原价</td>
+            <td>秒杀价</td>
+            <td>库存数量</td>
+            <td>详情</td>
+        </tr>
+        <tr th:each="goods,goodsStat: ${goodsList}">
+            <td th:text="${goods.goodsName}"></td>
+            <td><img th:src="@{${goods.goodsImg}}" width="100" height="100"></td>
+            <td th:text="${goods.goodsPrice}"></td>
+            <td th:text="${goods.msPrice}"></td>
+            <td th:text="${goods.stockCount}"></td>
+            <td> <a th:href="'/goods/toDetail/'+${goods.goodsid}">详情</a></td>
+        </tr>
+    </table>
+</div>
 </body>
 </html>

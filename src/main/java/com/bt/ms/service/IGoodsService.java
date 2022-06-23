@@ -2,6 +2,9 @@ package com.bt.ms.service;
 
 import com.bt.ms.pojo.Goods;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.bt.ms.vo.GoodsVo;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface IGoodsService extends IService<Goods> {
 
+     List<GoodsVo> findGoodsVo();
 }

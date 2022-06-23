@@ -1,7 +1,9 @@
 package com.bt.ms.controller;
 
 import com.bt.ms.pojo.User;
+import com.bt.ms.service.IGoodsService;
 import com.bt.ms.service.IUserService;
+import com.bt.ms.vo.GoodsVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 @Controller
 @RequestMapping("/goods")
@@ -20,26 +23,8 @@ public class GoodsController {
     @Autowired
     IUserService userService ;
 
-/*    @RequestMapping("/toList")
-    public String toGoodsList(HttpSession session
-    , Model model
-    , @CookieValue("userTicket") String userTicket,
-                              HttpServletRequest request ,
-                              HttpServletResponse response){
-        if(StringUtils.isEmpty(userTicket)){
-            return "login";
-        }
-        //User user = (User) session.getAttribute(userTicket);
-        User user = userService.getUserByCookie(userTicket,request,response) ;
-        if(user==null){
-            return "login";
-        }
-        System.out.println(user.toString());
-        model.addAttribute("user",user);
-        return "goodsList";
-    }*/
-
-
+    @Autowired
+    IGoodsService goodsService ;
 
     @RequestMapping("/toList")
     public String toGoodsList(Model model,User user){
@@ -47,7 +32,9 @@ public class GoodsController {
             return "login";
         }
         model.addAttribute("user",user);
-
+        List<GoodsVo> list = goodsService.findGoodsVo();
+        System.out.println("goodslist:"+list);
+        model.addAttribute("goodsList",list);
         return "goodsList";
     }
 
