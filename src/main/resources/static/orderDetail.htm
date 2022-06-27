@@ -23,7 +23,7 @@
         </tr>
         <tr>
             <td>商品图片</td>
-            <td colspan="2"><img src="goodsImg" width="100" height="100"></td>
+            <td colspan="2"><img id="goodsImg" width="100" height="100"></td>
         </tr>
         <tr>
             <td>订单价格</td>
@@ -51,7 +51,7 @@
 
     function getDetails(){
         var  orderId = g_getQueryString("orderId");
-        alert(orderId)
+       // alert(orderId)
         $.ajax({
             url:'/msbus/details',
             data:{orderId:orderId},
@@ -72,14 +72,12 @@
     }
 
     function reader(detail){
-        var goods = detail.goods ;
+        console.info(detail+"==========")
+        var goods = detail.goodsVo ;
         var order = detail.order ;
         $("#goodsName").text(goods.goodsName);
         $("#goodsImg").attr("src",goods.goodsImg);
-        $("#startTime").text(new Date(goods.startTime).format("yyyy-MM-dd hh:mm:ss"))
-        $("#remainSeconds").text(remainSeconds)
-        $("#remainSeconds").val(remainSeconds);
-        $("#msStatus").val(status);
+        $("#createTime").text(new Date(order.createTime).format("yyyy-MM-dd hh:mm:ss"))
         $("#goodsId").val(goods.goodsid);
         $("#goodsPrice").text(goods.goodsPrice);
         $("#msPrice").text(goods.msPrice)

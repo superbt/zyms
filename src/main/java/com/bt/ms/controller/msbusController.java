@@ -84,7 +84,7 @@ public class msbusController {
         model.addAttribute("goods",goodsVo);
         return "orderDetail";*/
         System.out.println("=="+order.getOrderId());
-        return  RespBean.success(order.getOrderId());
+        return  RespBean.success(String.valueOf(order.getOrderId()));
     }
 
 
