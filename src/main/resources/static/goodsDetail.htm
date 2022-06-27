@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>商品详情</title>
+    <script type="text/javascript" src="/js/jquery-3.6.0.min.js"></script>
+    <script type="text/javascript" src="/bootstrap/bootstrap.min.js"></script>
+    <link   rel="stylesheet"       href="/bootstrap/bootstrap.min.css"></link>
+    <script type="text/javascript" src="/validate/jquery.validate.min.js"></script>
+    <script type="text/javascript" src="/validate/messages_zh.min.js"></script>
+    <script type="text/javascript" src="/layer/layui.js"></script>
+    <link  rel="stylesheet"        href="/layer/css/layui.css"></link>
+    <script type="text/javascript" src="/md5.js"></script>
+    <script type="text/javascript" src="common.js"></script>
+</head>
+<body>
+<div class="layui-panel ">
+    <div class="header-panel"><p text="'hello:'+${user.nickname}"> 秒杀详情</div>
+    <div class="layui-body">
+        <span id="userTip">您还没有登录，请登录后再操作<br>
+            没有收获地址提示</span>
+    </div>
+    <table class="table" id="goods">
+        <tr>
+            <td>商品名称</td>
+            <td colspan="3" id="goodsName"></td>
+        </tr>
+        <tr>
+            <td>商品图片</td>
+            <td colspan="3"><img id="goodsImg" width="100" height="100"></td>
+        </tr>
+        <tr>
+            <td>秒杀开始时间</td>
+            <td id="startTime"></td>
+            <input id="remainSeconds"  type="hidden" name="remainSeconds" />
+            <input id="msStatus"  type="hidden"  name="msStatus" />
+            <td><span id="msTip"></span></td>
+            <!--   <td id="msTip">
+               <span if="${msStatus eq 0}"> 秒杀倒计时：
+                     <span id="countDown" text="${remainSeconds}">秒</span>
+                 </span>
+                 <span if="${msStatus eq 1}">秒杀进行中</span>
+                 <span if="${msStatus eq 2}">秒杀已结束</span>
+             </td>-->
+            <td>
+           <!-- <form name="form" method="post" action="/msbus/doMs">
+-->
+                <input type="hidden" name="goodsId" id="goodsId" >
+                <button class="btn btn-primary btn-block"  type="button" id="buyButton"
+                        name="buyButton"
+                        onclick="doms()"
+                >立即秒杀</button>
+            </td>
+    <!--        </form>-->
+        </tr>
+        <tr>
+            <td>商品原价</td>
+            <td colspan="3" id="goodsPrice"></td>
+        </tr>
+        <tr>
+            <td>秒杀价</td>
+            <td colspan="3" id="msPrice"></td>
+        </tr>
+        <tr>
+            <td>库存</td>
+            <td colspan="3" id="stockCount"></td>
+        </tr>
+    </table>
+</div>
+</body>
+<script>
+    $(function (){
+       // countDown();
+        getDetails();
+    });
+
+    function getDetails(){
+       var  goodsId = g_getQueryString("goodsId");
+       $.ajax({
+           url:'/goods/details/'+goodsId ,
+           type:"post",
+           success:function (data){
+               if(data.code==200){
+                   reader(data.obj)
+
+               }else{
+                   layer.msg("请求失败")
+               }
+
+           },
+           error:function (){
+               layer.msg("请求失败");
+           }
+       })
+    }
+
+    function reader(detail){
+        var user = detail.user;
+        var goods = detail.goodsVo ;
+        var status = detail.msStatus;
+        var remainSeconds = detail.remainSeconds;
+        if(user!=null){
+            $("#userTip").hide();
+        }
+        $("#goodsName").text(goods.goodsName);
+        $("#goodsImg").attr("src",goods.goodsImg);
+        $("#startTime").text(new Date(goods.startTime).format("yyyy-MM-dd hh:mm:ss"))
+        $("#remainSeconds").text(remainSeconds)
+        $("#remainSeconds").val(remainSeconds);
+        $("#msStatus").val(status);
+        $("#goodsId").val(goods.goodsid);
+        $("#goodsPrice").text(goods.goodsPrice);
+        $("#msPrice").text(goods.msPrice)
+        $("#stockCount").text(goods.stockCount);
+        countDown();
+    }
+
+    function msclick(){
+      alert("我要秒杀了");
+        $.ajax({
+            url:"123",
+            type:"post",
+            data:{
+                goodsId:$("#goodsId").val()
+            },
+            success:function (data){
+                layer.closeAll();
+                if(data.code==200){
+                    layer.msg("成功");
+                }else {
+                    var msg1 = data.mssage ;
+                    var msg2 = data.obj ;
+                    layer.msg((msg1==null?'':msg1)+(msg2==null?'':msg2));
+                }
+
+            },
+            error:function () {
+                layer.closeAll();
+                layer.msg("异常")
+            }
+        })
+    }
+
+    function g_showLoading(){
+        var idx = layer.msg('处理中。。。。',
+            {icon:16 ,shade:[0.5,'#f5f5f5'],scrollbar:false,offset:'0px',
+                time:100000
+            }
+        );
+        return idx ;
+    }
+
+
+    function  countDown(){
+        var remainSeconds = $("#remainSeconds").val();
+        var msStatus = $("#msStatus").val();
+        var timeout ;
+        if(remainSeconds >0 ){
+            $("#buyButton").attr("disabled",true);
+            $("#msTip").html("秒杀倒计时："+remainSeconds+"秒");
+            timeout = setTimeout(function () {
+                //$("#countDown").text(remainSeconds-1);
+                $("#remainSeconds").val(remainSeconds-1);
+                countDown();
+            },1000);
+        }else if(remainSeconds == 0 ){
+            $("#buyButton").attr("disabled",false);
+            if(timeout){
+                clearTimeout(timeout);
+            }
+            $("#msTip").html("秒杀进行中");
+        }else{
+            $("#buyButton").attr("disabled",true);
+            $("#msTip").html("秒杀已结束");
+        }
+    }
+
+    function doms(){
+        $.ajax({
+            url:'/msbus/doMs',
+            type: "POST",
+            data: {
+                goodsId: $("#goodsId").val()
+            },
+            success:function (data){
+                if(data.code==200){
+
+                    console.info(1541450919532904452+"1===="+data.obj)
+                  window.location.href="/orderDetail.htm?orderId="+data.obj
+                }else {
+                    layer.msg(data.obj)
+                }
+
+            },
+            error:function (){
+                layer.msg("客户端请求失败")
+            }
+        })
+    }
+</script>
+</html>

@@ -44,6 +44,46 @@
 </div>
 </body>
 <script>
+    $(function (){
+        // countDown();
+        getDetails();
+    });
 
+    function getDetails(){
+        var  orderId = g_getQueryString("orderId");
+        alert(orderId)
+        $.ajax({
+            url:'/msbus/details',
+            data:{orderId:orderId},
+            type:"post",
+            success:function (data){
+                if(data.code==200){
+                    reader(data.obj)
+
+                }else{
+                    layer.msg("请求失败")
+                }
+
+            },
+            error:function (){
+                layer.msg("请求失败");
+            }
+        })
+    }
+
+    function reader(detail){
+        var goods = detail.goods ;
+        var order = detail.order ;
+        $("#goodsName").text(goods.goodsName);
+        $("#goodsImg").attr("src",goods.goodsImg);
+        $("#startTime").text(new Date(goods.startTime).format("yyyy-MM-dd hh:mm:ss"))
+        $("#remainSeconds").text(remainSeconds)
+        $("#remainSeconds").val(remainSeconds);
+        $("#msStatus").val(status);
+        $("#goodsId").val(goods.goodsid);
+        $("#goodsPrice").text(goods.goodsPrice);
+        $("#msPrice").text(goods.msPrice)
+        $("#stockCount").text(goods.stockCount);
+    }
 </script>
 </html>

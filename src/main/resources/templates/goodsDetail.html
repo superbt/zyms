@@ -6,7 +6,7 @@
     <title>商品详情</title>
     <script type="text/javascript" th:src="@{/js/jquery-3.6.0.min.js}"></script>
     <script type="text/javascript" th:src="@{/bootstrap/bootstrap.min.js}"></script>
-    <link   rel="stylesheet"        th:href="@{/bootstrap/bootstrap.min.css}"></link>
+    <link   rel="stylesheet"       th:href="@{/bootstrap/bootstrap.min.css}"></link>
     <script type="text/javascript" th:src="@{/validate/jquery.validate.min.js}"></script>
     <script type="text/javascript" th:src="@{/validate/messages_zh.min.js}"></script>
     <script type="text/javascript" th:src="@{/layer/layui.js}"></script>
@@ -45,7 +45,10 @@
             <form name="form" method="post" action="/msbus/doMs">
             <td>
                 <input type="hidden" name="goodsId" id="goodsId" th:value="${goods.goodsid}">
-                <button class="btn btn-primary btn-block"  type="submit" id="buyButton" name="buyButton" >立即秒杀</button>
+                <button class="btn btn-primary btn-block"  type="button" id="buyButton"
+                        name="buyButton"
+                        onclick="doms()"
+                >立即秒杀</button>
             </td>
             </form>
         </tr>
@@ -122,6 +125,27 @@
             $("#buyButton").attr("disabled",true);
             $("#msTip").html("秒杀已结束");
         }
+    }
+
+    function doms(){
+        $.ajax({
+            url:'/msbus/doMs',
+            type: "post",
+            data: {
+                goodsId: $("#goodsId").val()
+            },
+            success:function (data){
+                if(data.code==200){
+                  window.location.href="/orderDetail.htm?orderId="+data.obj.orderId
+                }else {
+                    layer.msg("客户端请求失败")
+                }
+
+            },
+            error:function (){
+                layer.msg("客户端请求失败")
+            }
+        })
     }
 </script>
 </html>

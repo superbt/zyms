@@ -1,4 +1,5 @@
 package com.bt.ms.service.impl;
+import java.beans.Transient;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -16,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bt.ms.service.IOrderService;
 import com.bt.ms.vo.GoodsVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 /**
@@ -35,14 +37,17 @@ public class MsOrderServiceImpl extends ServiceImpl<MsOrderMapper, MsOrder> impl
     @Autowired
     IOrderService orderService ;
 
+    @Autowired
+    RedisTemplate redisTemplate ;
 
-
+    @Transient
     @Override
     public Order doMs(User user, GoodsVo goodsVo) {
         //减库存
         MsGoods msGoods = msGoodsService.getOne(new QueryWrapper<MsGoods>().
                 eq("goods_id", goodsVo.getGoodsid()));
         msGoods.setStockCount(msGoods.getStockCount()-1);
+        //加条件 库存》0
         msGoodsService.updateById(msGoods);
 
         //生成订单
@@ -58,6 +63,7 @@ public class MsOrderServiceImpl extends ServiceImpl<MsOrderMapper, MsOrder> impl
         order.setCreateTime(new Date());
         order.setPayTime(new Date());
         orderService.save(order);
+        System.out.println(order.toString());
 
 
         //生成秒杀订单
@@ -66,6 +72,7 @@ public class MsOrderServiceImpl extends ServiceImpl<MsOrderMapper, MsOrder> impl
         msOrder.setGoodsId(goodsVo.getGoodsid());
         msOrder.setOrderId(order.getOrderId());
         save(msOrder);
+        redisTemplate.opsForValue().set("order:"+user.getId()+":"+goodsVo.getGoodsid(),msOrder);
         return order;
     }
 }

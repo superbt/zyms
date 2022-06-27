@@ -1,9 +1,11 @@
 package com.bt.ms.controller;
 
+import com.bt.ms.common.vo.RespBean;
 import com.bt.ms.pojo.Goods;
 import com.bt.ms.pojo.User;
 import com.bt.ms.service.IGoodsService;
 import com.bt.ms.service.IUserService;
+import com.bt.ms.vo.DetailVo;
 import com.bt.ms.vo.GoodsVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,11 +70,11 @@ public class GoodsController {
             return html;
         }
 
-        return null ;
+        return "goodsList";
     }
 
-    @RequestMapping("/toDetail/{goodsId}")
-    public String toDetail(Model model , User user, @PathVariable Long goodsId){
+    @RequestMapping("/toDetail2/{goodsId}")
+    public String toDetail2(Model model , User user, @PathVariable Long goodsId){
         if(user==null){
             return "login";
         }
@@ -95,5 +97,37 @@ public class GoodsController {
         model.addAttribute("msStatus",msStatus);
         model.addAttribute("goods",goods);
         return "goodsDetail" ;
+    }
+
+
+    @RequestMapping("/details/{goodsId}")
+    @ResponseBody
+    public RespBean toDetail(Model model , User user, @PathVariable Long goodsId){
+        if(user==null){
+            return RespBean.error("用户失效");
+        }
+        model.addAttribute("user",user);
+        GoodsVo goods =  goodsService.findGoodsVoByGoodsId(goodsId);
+        Date startTime = goods.getStartTime();
+        Date endTime = goods.getEndTime();
+        Date cunrentTime = new Date();
+        int msStatus =  0 ;
+        long remainSeconds = 0 ;
+        if(cunrentTime.before(startTime)){
+            msStatus = 0 ;
+            remainSeconds =  (startTime.getTime()-cunrentTime.getTime())/1000 ;
+        }else  if(cunrentTime.after(endTime)){
+            msStatus=2;
+            remainSeconds = -1 ;
+        }else{
+            msStatus = 1 ;
+            remainSeconds = 0 ;
+        }
+        DetailVo detailVo = new DetailVo();
+        detailVo.setUser(user);
+        detailVo.setGoodsVo(goods);
+        detailVo.setMsStatus(msStatus);
+        detailVo.setRemainSeconds(remainSeconds);
+        return RespBean.success(detailVo)  ;
     }
 }
