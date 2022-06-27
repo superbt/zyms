@@ -7,17 +7,23 @@ import com.bt.ms.service.IUserService;
 import com.bt.ms.vo.GoodsVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.thymeleaf.context.WebContext;
+import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @Controller
 @RequestMapping("/goods")
@@ -29,16 +35,40 @@ public class GoodsController {
     @Autowired
     IGoodsService goodsService ;
 
-    @RequestMapping("/toList")
-    public String toGoodsList(Model model,User user){
+    @Autowired
+    RedisTemplate redisTemplate ;
+
+    @Autowired
+    ThymeleafViewResolver thymeleafViewResolver ;
+
+    @RequestMapping(value = "/toList",produces = "text/html;charset=utf-8")
+    @ResponseBody
+    public String toGoodsList(Model model,User user
+    ,HttpServletRequest request, HttpServletResponse response ){
         if(user==null){
             return "login";
         }
+
+        ValueOperations valueOperations = redisTemplate.opsForValue();
+        String html = (String) valueOperations.get("goodsList");
+        if(!StringUtils.isEmpty(html)){
+            return html;
+        }
+
         model.addAttribute("user",user);
         List<GoodsVo> list = goodsService.findGoodsVo();
         System.out.println("goodslist:"+list);
         model.addAttribute("goodsList",list);
-        return "goodsList";
+       // return "goodsList";
+        WebContext context = new WebContext(request,response,request.getServletContext(),
+                request.getLocale(),model.asMap());
+        html = thymeleafViewResolver.getTemplateEngine().process("goodsList",context);
+        if(!StringUtils.isEmpty(html)){
+            valueOperations.set("goodsList",html,60, TimeUnit.SECONDS);
+            return html;
+        }
+
+        return null ;
     }
 
     @RequestMapping("/toDetail/{goodsId}")
