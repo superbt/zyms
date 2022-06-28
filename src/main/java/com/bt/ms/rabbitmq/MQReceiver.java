@@ -63,6 +63,7 @@ public class MQReceiver {
 
         GoodsVo goodsVoByGoods= iGoodsService.findGoodsVoByGoodsId(goodsId);
         if(goodsVoByGoods.getStockCount()<1){
+            redisTemplate.opsForValue().set( "isStorkEmpty:"+goodsId,"0");
             return;
         }
 

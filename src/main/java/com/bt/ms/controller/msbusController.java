@@ -131,6 +131,17 @@ public class msbusController implements InitializingBean {
         return RespBean.success(0) ;
     }
 
+    // 1 sucdess  -1 fail  0 ing
+    @RequestMapping(value = "/result")
+    @ResponseBody
+    public RespBean result(Model model, User user,Long goodsId){
+        if(user==null){
+            return  RespBean.error("用户失效");
+        }
+        Long status =  msOrderService.getResult(user ,goodsId);
+        return  RespBean.success(status);
+    }
+
 
     @RequestMapping(value = "/details")
     @ResponseBody

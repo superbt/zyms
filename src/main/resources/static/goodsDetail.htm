@@ -176,6 +176,7 @@
     }
 
     function doms(){
+       // layer.msg("抢购中。。。。。。。")
         $.ajax({
             url:'/msbus/doMs',
             type: "POST",
@@ -186,7 +187,8 @@
                 if(data.code==200){
 
                    // console.info(1541450919532904452+"1===="+data.obj)
-                  window.location.href="/orderDetail.htm?orderId="+data.obj
+                 // window.location.href="/orderDetail.htm?orderId="+data.obj
+                    getResult($("#goodsId").val())
                 }else {
                     layer.msg(data.obj)
                 }
@@ -194,6 +196,42 @@
             },
             error:function (){
                 layer.msg("客户端请求失败")
+            }
+        })
+    }
+
+    function  getResult(goodsid){
+        g_showLoading();
+        $.ajax({
+            url:'/ms/result',
+            type:"GET",
+            data:{
+                goodsid:goodsid
+            },
+            success:function (data){
+
+                if(data.code==200){
+                    var result = data.obj;
+                    if(result<0){
+                        layer.msg("秒杀失败");
+                    }else if(result ==0){
+
+                        setInterval(function (){
+                            getResult(goodsid);
+                        },50)
+                    }else{
+                        layer.confirm("恭喜您 秒杀成功，查看订单?",{btn:["确定","取消"]}),
+                            function (){
+                                window.location.href="/orderDetail.htm?orderId="+result
+                            },
+                            function (){
+                              layer.close();
+                            }
+                    }
+                }
+            },
+            error:function (){
+                layer.msg("请求失败");
             }
         })
     }

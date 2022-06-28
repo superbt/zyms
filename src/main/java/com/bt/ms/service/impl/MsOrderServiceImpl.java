@@ -45,6 +45,11 @@ public class MsOrderServiceImpl extends ServiceImpl<MsOrderMapper, MsOrder> impl
     @Autowired
     IGoodsService iGoodsService ;
 
+    @Autowired
+    MsOrderMapper msOrderMapper ;
+
+
+
     @Transient
     @Override
     public Order doMs(User user, Long goodsId) {
@@ -80,5 +85,21 @@ public class MsOrderServiceImpl extends ServiceImpl<MsOrderMapper, MsOrder> impl
         save(msOrder);
         redisTemplate.opsForValue().set("order:"+user.getId()+":"+goodsVo.getGoodsid(),msOrder);
         return order;
+    }
+
+    @Override
+    public Long getResult(User user, Long goodsId) {
+        //查询
+        //new QueryWrapper<>().eq("user_id", user.getId()).
+        //                eq("goods_id", goodsId)
+        MsOrder msOrder = msOrderMapper.selectOne(new QueryWrapper<MsOrder>().eq("user_id", user.getId()).
+                       eq("goods_id", goodsId));
+        if(msOrder!=null){
+            return  msOrder.getOrderId();
+        }else if(redisTemplate.hasKey("isStorkEmpty:"+goodsId)){
+            return -1L ;
+        }{
+            return  0L ;
+        }
     }
 }

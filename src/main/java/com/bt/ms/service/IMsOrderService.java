@@ -17,4 +17,6 @@ import com.bt.ms.vo.GoodsVo;
 public interface IMsOrderService extends IService<MsOrder> {
 
     Order doMs(User user, Long goodsId);
+
+    Long getResult(User user, Long goodsId);
 }
