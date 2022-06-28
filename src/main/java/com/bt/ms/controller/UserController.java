@@ -34,4 +34,26 @@ public class UserController {
         mqSender.send(info);
         return RespBean.success();
     }
+
+
+    @GetMapping("/mq/fantout")
+    @ResponseBody
+    public RespBean mq_fantout(String info){
+        mqSender.send(info);
+        return RespBean.success();
+    }
+
+    @GetMapping("/mq/direct01")
+    @ResponseBody
+    public RespBean mq_direct01(String info){
+        mqSender.send01("hello red:"+info);
+        return RespBean.success();
+    }
+
+    @GetMapping("/mq/direct02")
+    @ResponseBody
+    public RespBean mq_direct02(String info){
+        mqSender.send02("hello green:"+info);
+        return RespBean.success();
+    }
 }
