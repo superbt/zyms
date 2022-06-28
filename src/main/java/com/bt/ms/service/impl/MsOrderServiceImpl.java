@@ -11,6 +11,7 @@ import com.bt.ms.pojo.MsOrder;
 import com.bt.ms.mapper.MsOrderMapper;
 import com.bt.ms.pojo.Order;
 import com.bt.ms.pojo.User;
+import com.bt.ms.service.IGoodsService;
 import com.bt.ms.service.IMsGoodsService;
 import com.bt.ms.service.IMsOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -40,12 +41,17 @@ public class MsOrderServiceImpl extends ServiceImpl<MsOrderMapper, MsOrder> impl
     @Autowired
     RedisTemplate redisTemplate ;
 
+
+    @Autowired
+    IGoodsService iGoodsService ;
+
     @Transient
     @Override
-    public Order doMs(User user, GoodsVo goodsVo) {
+    public Order doMs(User user, Long goodsId) {
         //减库存
         MsGoods msGoods = msGoodsService.getOne(new QueryWrapper<MsGoods>().
-                eq("goods_id", goodsVo.getGoodsid()));
+                eq("goods_id", goodsId));
+        GoodsVo goodsVo = iGoodsService.findGoodsVoByGoodsId(goodsId);
         msGoods.setStockCount(msGoods.getStockCount()-1);
         //加条件 库存》0
         msGoodsService.updateById(msGoods);
@@ -53,7 +59,7 @@ public class MsOrderServiceImpl extends ServiceImpl<MsOrderMapper, MsOrder> impl
         //生成订单
         Order order = new Order();
         order.setUserId(Long.parseLong(user.getId()));
-        order.setGoodsId(goodsVo.getGoodsid());
+        order.setGoodsId(goodsId);
         order.setDeliverAddrId(0L);
         order.setGoodsName(goodsVo.getGoodsName());
         order.setGoodsCount(1);

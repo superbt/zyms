@@ -2,6 +2,7 @@ package com.bt.ms.rabbitmq;
 
 import com.bt.ms.conf.RabbitMQConfig;
 import com.bt.ms.conf.RabbitMQDireConfig;
+import com.bt.ms.conf.RabbitMQTopicConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,5 +27,10 @@ public class MQSender {
     public void send02(Object msg){
         log.info("GREEN发送消息："+msg);
         rabbitTemplate.convertAndSend(RabbitMQDireConfig.EX_DIRECT,RabbitMQDireConfig.ROUTKEY_02,msg);
+    }
+
+    public void sendMsMessage(String message){
+        log.info("发送信息："+message);
+        rabbitTemplate.convertAndSend(RabbitMQTopicConfig.EXCHANGE,"ms.message",message);
     }
 }
