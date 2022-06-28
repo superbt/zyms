@@ -102,4 +102,9 @@ public class msbusController {
         orderDetail.setGoodsVo(goodsVo);
         return  RespBean.success(orderDetail);
     }
+
+    public static void main(String[] args) {
+        String t = "1541587348153995266";
+        System.out.println(t.length());
+    }
 }
