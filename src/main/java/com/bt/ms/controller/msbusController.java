@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
 @RequestMapping("/msbus")
@@ -44,6 +46,8 @@ public class msbusController implements InitializingBean {
 
     @Autowired
     MQSender mqSender;
+
+    private Map<Long, Boolean> EmptyStorkMap = new ConcurrentHashMap<>();
 
     @RequestMapping("/doMs2")
     public String doMs2(Model model, User user,Long goodsId) {
@@ -111,9 +115,13 @@ public class msbusController implements InitializingBean {
         if(one!=null){
             return RespBean.error("订单不可重复");
         }
+        if(EmptyStorkMap.get(goodsId)){
+            return RespBean.error("库存不足");
+        }
         ValueOperations valueOperations = redisTemplate.opsForValue();
         Long stock = valueOperations.decrement("msgoods:"+goodsId);
         if(stock<0){
+            EmptyStorkMap.put(goodsId,true);
             valueOperations.increment("msgoods:"+goodsId);
             return RespBean.error("库存不足");
         }
@@ -152,6 +160,7 @@ public class msbusController implements InitializingBean {
         }
         list.forEach(goodsVo -> {
             redisTemplate.opsForValue().set("msgoods:"+goodsVo.getGoodsid(),goodsVo.getStockCount());
+            EmptyStorkMap.put(goodsVo.getGoodsid(),false);
         });
     }
 }
