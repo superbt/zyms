@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
@@ -278,9 +279,22 @@ public class msbusController implements InitializingBean {
 
     @RequestMapping("/path")
     @ResponseBody
-    public RespBean getPath(User user ,Long goodsId,String captch){
+    public RespBean getPath(User user , Long goodsId
+            , String captch, HttpServletRequest request){
         if(user==null){
             return RespBean.error("用户失效");
+        }
+
+        ValueOperations operations = redisTemplate.opsForValue();
+        //5s访问5次
+        String uri = request.getRequestURI();
+        Integer count = (Integer) operations.get(uri+":"+user.getId());
+        if(count==null){
+            operations.set(uri+":"+user.getId(),1,5,TimeUnit.SECONDS);
+        }else if(count<5){
+            operations.increment(uri+":"+user.getId());
+        }else {
+            return RespBean.error("您访问频繁，请稍后再试");
         }
         boolean check = msOrderService.checkCaptch(user,goodsId,captch);
         if(!check){
