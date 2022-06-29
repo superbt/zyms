@@ -2,6 +2,8 @@ package com.bt.ms.service.impl;
 import java.beans.Transient;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.bt.ms.mapper.MsGoodsMapper;
@@ -16,9 +18,12 @@ import com.bt.ms.service.IMsGoodsService;
 import com.bt.ms.service.IMsOrderService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.bt.ms.service.IOrderService;
+import com.bt.ms.utils.MD5Util;
 import com.bt.ms.vo.GoodsVo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
 /**
@@ -102,4 +107,23 @@ public class MsOrderServiceImpl extends ServiceImpl<MsOrderMapper, MsOrder> impl
             return  "0" ;
         }
     }
+
+    @Override
+    public String createPath(User user, Long goodsId) {
+        String uuid = UUID.randomUUID().toString().replace("-","");
+        String str = MD5Util.md5(uuid+"123456");
+        redisTemplate.opsForValue().set("msPath:"+user.getId()+goodsId,str,60, TimeUnit.SECONDS);
+        return str;
+    }
+
+    @Override
+    public Boolean checkPath(User user, Long goodsId,String path) {
+        if(StringUtils.isEmpty(path)){
+            return false ;
+        }
+        ValueOperations operations = redisTemplate.opsForValue() ;
+        String redisStockPath = (String)operations.get("msPath:"+user.getId()+goodsId);
+        return path.equals(redisStockPath);
+    }
+
 }

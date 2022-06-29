@@ -48,7 +48,7 @@
                 <input type="hidden" name="goodsId" id="goodsId" >
                 <button class="btn btn-primary btn-block"  type="button" id="buyButton"
                         name="buyButton"
-                        onclick="doms()"
+                        onclick="getmsPath()"
                 >立即秒杀</button>
             </td>
     <!--        </form>-->
@@ -73,6 +73,29 @@
        // countDown();
         getDetails();
     });
+
+    //获取秒杀地址
+    function getmsPath(){
+        var goodsId = $("#goodsId").val();
+        g_showLoading();
+        $.ajax({
+            url:"/msbus/path",
+            type:"GET",
+            data:{goodsId:goodsId},
+            success:function (data){
+                if(data.code==200){
+                    var path = data.obj ;
+                    doms(path);
+                }else{
+                    layer.msg("获取地址失败")
+                }
+            },
+            error:function (){
+                layer.msg("获取地址失败请求异常")
+            }
+
+        })
+    }
 
     function getDetails(){
        var  goodsId = g_getQueryString("goodsId");
@@ -175,10 +198,10 @@
         }
     }
 
-    function doms(){
+    function doms(path){
        // layer.msg("抢购中。。。。。。。")
         $.ajax({
-            url:'/msbus/doMs',
+            url:'/msbus/'+path+'/doMs',
             type: "POST",
             data: {
                 goodsId: $("#goodsId").val()

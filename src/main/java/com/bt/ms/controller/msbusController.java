@@ -22,6 +22,7 @@ import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -139,12 +140,50 @@ public class msbusController implements InitializingBean {
     }
 
 
-    @RequestMapping(value = "/doMs")
+    @RequestMapping(value = "/doMs5")
     @ResponseBody
-    public RespBean doMs(Model model, User user,Long goodsId){
+    public RespBean doMs5(Model model, User user,Long goodsId){
         if(user==null){
             return RespBean.error("用户失效");
         }
+        MsOrder one = (MsOrder) redisTemplate.opsForValue().get("order:"+user.getId()+":"+goodsId);
+        if(one==null){
+            one = msOrderService.getOne(new QueryWrapper<MsOrder>().eq("user_id", user.getId())
+                    .eq("goods_id", goodsId));
+        }
+        if(one!=null){
+            return RespBean.error("订单不可重复");
+        }
+        if(EmptyStorkMap.get(goodsId)){
+            return RespBean.error("库存不足");
+        }
+        ValueOperations valueOperations = redisTemplate.opsForValue();
+        //Long stock = valueOperations.decrement("msgoods:"+goodsId);
+        Long stock = (Long)redisTemplate.execute(defaultRedisScriptlong,Collections.singletonList("msgoods:"+goodsId),
+                Collections.EMPTY_LIST);
+        if(stock<0){
+            EmptyStorkMap.put(goodsId,true);
+            valueOperations.increment("msgoods:"+goodsId);
+            return RespBean.error("库存不足");
+        }
+
+        MsMessgaeVo msMessgaeVo = new MsMessgaeVo(user,goodsId);
+        mqSender.sendMsMessage(JSON.toJSONString(msMessgaeVo));
+        return RespBean.success(0) ;
+    }
+
+    @RequestMapping(value = "/{path}/doMs")
+    @ResponseBody
+    public RespBean doMs(@PathVariable String path, Model model, User user, Long goodsId){
+        if(user==null){
+            return RespBean.error("用户失效");
+        }
+
+       Boolean check = msOrderService.checkPath(user,goodsId,path);
+       if(!check){
+           return RespBean.error("非法请求");
+       }
+
         MsOrder one = (MsOrder) redisTemplate.opsForValue().get("order:"+user.getId()+":"+goodsId);
         if(one==null){
             one = msOrderService.getOne(new QueryWrapper<MsOrder>().eq("user_id", user.getId())
@@ -227,5 +266,15 @@ public class msbusController implements InitializingBean {
             redisTemplate.opsForValue().set("msgoods:"+goodsVo.getGoodsid(),goodsVo.getStockCount());
             EmptyStorkMap.put(goodsVo.getGoodsid(),false);
         });
+    }
+
+    @RequestMapping("/path")
+    @ResponseBody
+    public RespBean getPath(User user ,Long goodsId){
+        if(user==null){
+            return RespBean.error("用户失效");
+        }
+        String str = msOrderService.createPath(user,goodsId);
+        return  RespBean.success(str) ;
     }
 }

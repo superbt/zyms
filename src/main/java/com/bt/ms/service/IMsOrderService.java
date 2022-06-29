@@ -19,4 +19,8 @@ public interface IMsOrderService extends IService<MsOrder> {
     Order doMs(User user, Long goodsId);
 
     String getResult(User user, Long goodsId);
+
+    String createPath(User user, Long goodsId);
+
+    Boolean checkPath(User user, Long goodsId,String path);
 }
