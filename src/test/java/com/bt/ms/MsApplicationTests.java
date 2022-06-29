@@ -101,9 +101,12 @@ class MsApplicationTests {
         if(isLock){
             valueOperations.set("name","xxxx");
             String name = (String) valueOperations.get("name");
-            System.out.println("name==="+name);
-            Object result = redisTemplate.execute(defaultRedisScriptlong, Collections.singletonList("k1"),value);
-            System.out.println("result==="+result);
+           // System.out.println("name==="+name);
+            //Object result = redisTemplate.execute(defaultRedisScriptlong, Collections.singletonList("k1"),value);
+            Long goodsId = 1L ;
+            Long stock = (Long)redisTemplate.execute(defaultRedisScriptlong,Collections.singletonList("msgoods:"+goodsId),
+                    Collections.EMPTY_LIST);
+            System.out.println("result==="+stock);
             //redisTemplate.delete("k1");
         }else{
             System.out.println("线程被使用，请稍后再试");
@@ -121,16 +124,16 @@ class MsApplicationTests {
                 @Override
                 public void run() {
                     System.out.println(Thread.currentThread()+"===start");
-                    try {
-                        Random random = new Random();
-                        int slint  = random.nextInt(5) ;
-                        slint = slint*1000;
-                        System.out.println("睡眠："+slint);
-                        Thread.sleep(slint);
-
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+//                    try {
+//                        Random random = new Random();
+//                        int slint  = random.nextInt(5) ;
+//                        slint = slint*1000;
+//                        System.out.println("睡眠："+slint);
+//                        Thread.sleep(1);
+//
+//                    } catch (InterruptedException e) {
+//                        e.printStackTrace();
+//                    }
                     testLock04();
                     System.out.println(Thread.currentThread()+"===end");
                 }

@@ -18,12 +18,14 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +49,10 @@ public class msbusController implements InitializingBean {
 
     @Autowired
     MQSender mqSender;
+
+    @Resource(name="defaultRedisScriptlong")
+    RedisScript defaultRedisScriptlong ;
+
 
     private Map<Long, Boolean> EmptyStorkMap = new ConcurrentHashMap<>();
 
@@ -102,6 +108,37 @@ public class msbusController implements InitializingBean {
     }
 
 
+    @RequestMapping(value = "/doMs4")
+    @ResponseBody
+    public RespBean doMs4(Model model, User user,Long goodsId){
+        if(user==null){
+            return RespBean.error("用户失效");
+        }
+        MsOrder one = (MsOrder) redisTemplate.opsForValue().get("order:"+user.getId()+":"+goodsId);
+        if(one==null){
+            one = msOrderService.getOne(new QueryWrapper<MsOrder>().eq("user_id", user.getId())
+                    .eq("goods_id", goodsId));
+        }
+        if(one!=null){
+            return RespBean.error("订单不可重复");
+        }
+        if(EmptyStorkMap.get(goodsId)){
+            return RespBean.error("库存不足");
+        }
+        ValueOperations valueOperations = redisTemplate.opsForValue();
+        Long stock = valueOperations.decrement("msgoods:"+goodsId);
+        if(stock<0){
+            EmptyStorkMap.put(goodsId,true);
+            valueOperations.increment("msgoods:"+goodsId);
+            return RespBean.error("库存不足");
+        }
+
+        MsMessgaeVo msMessgaeVo = new MsMessgaeVo(user,goodsId);
+        mqSender.sendMsMessage(JSON.toJSONString(msMessgaeVo));
+        return RespBean.success(0) ;
+    }
+
+
     @RequestMapping(value = "/doMs")
     @ResponseBody
     public RespBean doMs(Model model, User user,Long goodsId){
@@ -120,7 +157,9 @@ public class msbusController implements InitializingBean {
             return RespBean.error("库存不足");
         }
         ValueOperations valueOperations = redisTemplate.opsForValue();
-        Long stock = valueOperations.decrement("msgoods:"+goodsId);
+        //Long stock = valueOperations.decrement("msgoods:"+goodsId);
+        Long stock = (Long)redisTemplate.execute(defaultRedisScriptlong,Collections.singletonList("msgoods:"+goodsId),
+                Collections.EMPTY_LIST);
         if(stock<0){
             EmptyStorkMap.put(goodsId,true);
             valueOperations.increment("msgoods:"+goodsId);

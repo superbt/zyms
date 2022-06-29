@@ -37,7 +37,7 @@ public class Redisconf {
     public DefaultRedisScript<Long> defaultRedisScriptlong(){
         DefaultRedisScript redisScript = new DefaultRedisScript();
         redisScript.setLocation(new ClassPathResource("stock.lua"));
-        redisScript.setResultType(Boolean.class);
+        redisScript.setResultType(Long.class);
         return redisScript ;
     }
 }
