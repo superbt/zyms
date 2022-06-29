@@ -1,6 +1,7 @@
 package com.bt.ms.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.bt.ms.common.vo.RespBean;
 import com.bt.ms.pojo.MsOrder;
@@ -138,19 +139,21 @@ public class msbusController implements InitializingBean {
         if(user==null){
             return  RespBean.error("用户失效");
         }
-        Long status =  msOrderService.getResult(user ,goodsId);
+        String status =  msOrderService.getResult(user ,goodsId);
         return  RespBean.success(status);
     }
 
 
     @RequestMapping(value = "/details")
     @ResponseBody
-    public RespBean details(Model model, User user,Long orderId){
+    public RespBean details(Model model, User user,String orderId){
+
         if(user==null){
             return RespBean.error("用户失效");
         }
+        Long orderIdL = Long.parseLong(orderId);
         OrderDetailVo orderDetail = new OrderDetailVo();
-        Order order= orderService.getById(orderId);
+        Order order= orderService.getById(orderIdL);
         GoodsVo goodsVo = goodsService.findGoodsVoByGoodsId(order.getGoodsId());
         orderDetail.setOrder(order);
         orderDetail.setGoodsVo(goodsVo);
@@ -160,15 +163,27 @@ public class msbusController implements InitializingBean {
     public static void main(String[] args) {
         String t = "1541587348153995266";
         System.out.println(t.length());
+
+        User user = new User();
+        user.setNickname("xbt");
+        Long goodsId = 100L ;
+        MsMessgaeVo msMessgaeVo = new MsMessgaeVo(user,goodsId);
+        String msg = JSON.toJSONString(msMessgaeVo) ;
+        Object obj = msg ;
+        System.out.println(obj);
+        //System.out.println(msg);
+        //MsMessgaeVo msMessgaeVo2 = JSONObject.parseObject(msg,MsMessgaeVo.class);
     }
 
     //预加载
     @Override
     public void afterPropertiesSet() throws Exception {
         List<GoodsVo> list = goodsService.findGoodsVo();
+        System.out.println("初始化商品信息。。。。。。。。。。。。。。。。。。");
         if(CollectionUtils.isEmpty(list)){
           return;
         }
+        System.out.println("初始化商品信息。。。。。。。。。。。。。。。。。。"+list.toString());
         list.forEach(goodsVo -> {
             redisTemplate.opsForValue().set("msgoods:"+goodsVo.getGoodsid(),goodsVo.getStockCount());
             EmptyStorkMap.put(goodsVo.getGoodsid(),false);

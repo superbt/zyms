@@ -1,6 +1,7 @@
 package com.bt.ms.rabbitmq;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.bt.ms.common.vo.RespBean;
 import com.bt.ms.pojo.MsOrder;
@@ -54,10 +55,10 @@ public class MQReceiver {
     }
 
     @RabbitListener(queues = "msQueue")
-    public void receveMs(Object msg){
-        log.info("msQueue接受消息："+msg);
+    public void receveMs(String msg){
+        log.info("msQueue接受消息----："+msg);
         //下单操作
-        MsMessgaeVo msMessgaeVo = JSON.parseObject(String.valueOf(msg),MsMessgaeVo.class);
+        MsMessgaeVo msMessgaeVo = JSONObject.parseObject(msg,MsMessgaeVo.class);
         Long goodsId = msMessgaeVo.getGoodsId();
         User user = msMessgaeVo.getUser();
 

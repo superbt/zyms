@@ -88,18 +88,18 @@ public class MsOrderServiceImpl extends ServiceImpl<MsOrderMapper, MsOrder> impl
     }
 
     @Override
-    public Long getResult(User user, Long goodsId) {
+    public String getResult(User user, Long goodsId) {
         //查询
         //new QueryWrapper<>().eq("user_id", user.getId()).
         //                eq("goods_id", goodsId)
         MsOrder msOrder = msOrderMapper.selectOne(new QueryWrapper<MsOrder>().eq("user_id", user.getId()).
                        eq("goods_id", goodsId));
         if(msOrder!=null){
-            return  msOrder.getOrderId();
+            return String.valueOf(msOrder.getOrderId()) ;
         }else if(redisTemplate.hasKey("isStorkEmpty:"+goodsId)){
-            return -1L ;
+            return "-1";
         }{
-            return  0L ;
+            return  "0" ;
         }
     }
 }
