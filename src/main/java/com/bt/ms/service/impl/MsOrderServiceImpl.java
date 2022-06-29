@@ -126,4 +126,14 @@ public class MsOrderServiceImpl extends ServiceImpl<MsOrderMapper, MsOrder> impl
         return path.equals(redisStockPath);
     }
 
+    @Override
+    public boolean checkCaptch(User user, Long goodsId, String captch) {
+        if(StringUtils.isEmpty(captch)||user==null){
+            return false ;
+        }
+        ValueOperations operations = redisTemplate.opsForValue() ;
+        String str = (String) operations.get("captcha:"+user.getId()+goodsId);
+        return captch.equals(str);
+    }
+
 }

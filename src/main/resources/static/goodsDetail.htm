@@ -44,14 +44,23 @@
              </td>-->
             <td>
            <!-- <form name="form" method="post" action="/msbus/doMs">
--->
-                <input type="hidden" name="goodsId" id="goodsId" >
-                <button class="btn btn-primary btn-block"  type="button" id="buyButton"
-                        name="buyButton"
-                        onclick="getmsPath()"
-                >立即秒杀</button>
+-->  <input type="hidden" name="goodsId" id="goodsId" >
+                <div>
+                    <img id="captchImg" width="130" height="32"
+                         style="display: none"
+                         onclick="refreshCaptchImg()" />
+                    <input id="captch" class="form-control"
+                           style="display: none"
+                    />
+                    <button class="btn btn-primary"  type="button" id="buyButton"
+                            name="buyButton"
+                            onclick="getmsPath()"
+                    >立即秒杀</button>
+
+                </div>
             </td>
     <!--        </form>-->
+
         </tr>
         <tr>
             <td>商品原价</td>
@@ -74,20 +83,28 @@
         getDetails();
     });
 
+    //获取验证码
+    function refreshCaptchImg(){
+        var goodsId = $("#goodsId").val();
+        $("#captchImg").attr("src","/msbus/captcha?goodsId="+goodsId+"&time="+new Date())
+    }
+
     //获取秒杀地址
     function getmsPath(){
         var goodsId = $("#goodsId").val();
+        var captch = $("#captch").val();
         g_showLoading();
         $.ajax({
             url:"/msbus/path",
             type:"GET",
-            data:{goodsId:goodsId},
+            data:{goodsId:goodsId,
+                captch:captch},
             success:function (data){
                 if(data.code==200){
                     var path = data.obj ;
                     doms(path);
                 }else{
-                    layer.msg("获取地址失败")
+                    layer.msg("请求失败:"+data.obj)
                 }
             },
             error:function (){
@@ -177,6 +194,7 @@
     function  countDown(){
         var remainSeconds = $("#remainSeconds").val();
         var msStatus = $("#msStatus").val();
+        var goodsId = $("#goodsId").val();
         var timeout ;
         if(remainSeconds >0 ){
             $("#buyButton").attr("disabled",true);
@@ -188,12 +206,17 @@
             },1000);
         }else if(remainSeconds == 0 ){
             $("#buyButton").attr("disabled",false);
+            $("#captchImg").attr("src","/msbus/captcha?goodsId="+goodsId+"&time="+new Date());
+            $("#captchImg").show();
+            $("#captch").show();
             if(timeout){
                 clearTimeout(timeout);
             }
             $("#msTip").html("秒杀进行中");
         }else{
             $("#buyButton").attr("disabled",true);
+            $("#captchImg").hide();
+            $("#captch").hide();
             $("#msTip").html("秒杀已结束");
         }
     }

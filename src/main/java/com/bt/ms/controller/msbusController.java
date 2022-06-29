@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.bt.ms.common.vo.RespBean;
+import com.bt.ms.common.vo.RespBeanEnum;
+import com.bt.ms.exception.GlobalException;
 import com.bt.ms.pojo.MsOrder;
 import com.bt.ms.pojo.Order;
 import com.bt.ms.pojo.User;
@@ -14,6 +16,8 @@ import com.bt.ms.service.IOrderService;
 import com.bt.ms.vo.GoodsVo;
 import com.bt.ms.vo.MsMessgaeVo;
 import com.bt.ms.vo.OrderDetailVo;
+import com.wf.captcha.ArithmeticCaptcha;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -27,11 +31,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Controller
 @RequestMapping("/msbus")
 public class msbusController implements InitializingBean {
@@ -270,11 +278,36 @@ public class msbusController implements InitializingBean {
 
     @RequestMapping("/path")
     @ResponseBody
-    public RespBean getPath(User user ,Long goodsId){
+    public RespBean getPath(User user ,Long goodsId,String captch){
         if(user==null){
             return RespBean.error("用户失效");
+        }
+        boolean check = msOrderService.checkCaptch(user,goodsId,captch);
+        if(!check){
+            return RespBean.error("验证码失败");
         }
         String str = msOrderService.createPath(user,goodsId);
         return  RespBean.success(str) ;
     }
+
+    @RequestMapping("/captcha")
+    public void getCaptcha(User user , Long goodsId, HttpServletResponse response){
+        if(user==null||goodsId==null){
+           throw  new GlobalException(RespBeanEnum.BADREQUEST);
+        }
+        // 算术类型
+        ArithmeticCaptcha captcha = new ArithmeticCaptcha(130, 48);
+        redisTemplate.opsForValue().set("captcha:"+user.getId()+goodsId,captcha.text(),300, TimeUnit.SECONDS);
+        response.setContentType("image/jpg");
+        response.setHeader("Param","No-cache");
+        response.setHeader("Cache-Control","no-cache");
+        response.setDateHeader("Expires",0);
+        try {
+            captcha.out(response.getOutputStream());
+        } catch (IOException e) {
+            log.info("验证码流错误");
+            e.printStackTrace();
+        }
+    }
+
 }
