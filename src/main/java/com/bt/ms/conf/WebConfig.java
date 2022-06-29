@@ -1,5 +1,6 @@
 package com.bt.ms.conf;
 
+import com.bt.ms.intercept.AccessLimitIntercept;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     UserArgumentResolver userArgumentResolver ;
 
+    @Autowired
+    AccessLimitIntercept accessLimitIntercept ;
+
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(userArgumentResolver);
@@ -30,7 +34,13 @@ public class WebConfig implements WebMvcConfigurer {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/**").addResourceLocations("classpath:/static/");
     }
-/*
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(accessLimitIntercept);
+    }
+
+    /*
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
     registry.addViewController("/").setViewName("login");//前拼templates，后拼.html

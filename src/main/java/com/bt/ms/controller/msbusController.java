@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.bt.ms.common.vo.RespBean;
 import com.bt.ms.common.vo.RespBeanEnum;
+import com.bt.ms.conf.AccessLimit;
 import com.bt.ms.exception.GlobalException;
 import com.bt.ms.pojo.MsOrder;
 import com.bt.ms.pojo.Order;
@@ -277,6 +278,7 @@ public class msbusController implements InitializingBean {
         });
     }
 
+    @AccessLimit(second=5 ,maxCount=5 , needLogin=true)
     @RequestMapping("/path")
     @ResponseBody
     public RespBean getPath(User user , Long goodsId
@@ -285,7 +287,7 @@ public class msbusController implements InitializingBean {
             return RespBean.error("用户失效");
         }
 
-        ValueOperations operations = redisTemplate.opsForValue();
+/*        ValueOperations operations = redisTemplate.opsForValue();
         //5s访问5次
         String uri = request.getRequestURI();
         Integer count = (Integer) operations.get(uri+":"+user.getId());
@@ -295,7 +297,7 @@ public class msbusController implements InitializingBean {
             operations.increment(uri+":"+user.getId());
         }else {
             return RespBean.error("您访问频繁，请稍后再试");
-        }
+        }*/
         boolean check = msOrderService.checkCaptch(user,goodsId,captch);
         if(!check){
             return RespBean.error("验证码失败");

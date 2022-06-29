@@ -33,13 +33,20 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
                                   ModelAndViewContainer mavContainer,
                                   NativeWebRequest webRequest,
                                   WebDataBinderFactory binderFactory) throws Exception {
-        HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
-        HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
-        String ticket = CookieUtil.getCookieValue(request,"userTicket");
-        System.out.println("getuserTicket:"+ticket);
-        if (StringUtils.isEmpty(ticket)){
-            return  null ;
-        }
-        return userService.getUserByCookie(ticket,request,response);
+
+       User user = UserContext.getUser() ;
+       if(user ==null){
+           System.out.println("解析器===处理user用户对象");
+           HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
+           HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
+           String ticket = CookieUtil.getCookieValue(request,"userTicket");
+           System.out.println("getuserTicket:"+ticket);
+           if (StringUtils.isEmpty(ticket)){
+               return  null ;
+           }
+           user =  userService.getUserByCookie(ticket,request,response);
+           UserContext.setUser(user);
+       }
+        return  UserContext.getUser();
     }
 }
